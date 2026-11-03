@@ -9,6 +9,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+// include these namespaces
+using System.Configuration;
+using System.Data;
+using Microsoft.Data.SqlClient;
+using System.Printing;
+using System.Windows.Media.TextFormatting;
+
+
 namespace F26W8ConnectedModel
 {
     /// <summary>
@@ -16,9 +24,34 @@ namespace F26W8ConnectedModel
     /// </summary>
     public partial class MainWindow : Window
     {
+        string connStr = ConfigurationManager.ConnectionStrings["Northwind"].ConnectionString;
+
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void LoadEmployees()
+        {
+            SqlConnection conn = new SqlConnection(connStr);
+
+            string query = "select * from Employees";
+            SqlCommand cmd = new SqlCommand(query, conn);
+
+            conn.Open();
+
+            SqlDataReader reader = cmd.ExecuteReader();
+
+            DataTable tbl = new DataTable();
+            tbl.Load(reader);
+            grdEmployees.ItemsSource = tbl.DefaultView;
+
+            conn.Close();
+        }
+
+        private void btnLoad_Click(object sender, RoutedEventArgs e)
+        {
+            LoadEmployees();
         }
     }
 }
